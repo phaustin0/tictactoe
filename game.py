@@ -110,6 +110,29 @@ def check_win(player):
     # no match
     return False
 
+# check for win for a specific player
+def is_won(player):
+    # check for vertical match
+    for col in range(board_col):
+        if board[0][col] == player and board[1][col] == player and board[2][col] == player:
+            return True
+
+    # check for horizontal match
+    for row in range(board_row):
+        if board[row][0] == player and board[row][1] == player and board[row][2] == player:
+            return True
+
+    # check for ascending diagonal match
+    if board[2][0] == player and board[1][1] == player and board[0][2] == player:
+        return True
+
+    # check for descending diagonal match
+    if board[0][0] == player and board[1][1] == player and board[2][2] == player:
+        return True
+
+    # no match
+    return False
+
 # draw vertical line
 def draw_vertical_line(col, player):
     xPos = col * square_size + square_size / 2
@@ -147,6 +170,55 @@ def restart():
         for col in range(board_col):
             board[row][col] = 0
 
+# ai makes a move
+def ai_move():
+    best_score = float('-inf')
+    move = None
+    for row in range(board_row):
+        for col in range(board_col):
+            if is_tile_empty(row, col):
+                place_shape(row, col, 1)
+                score = minimax(board, 0, False)
+                place_shape(row, col, 0)
+                if best_score < score:
+                    best_score = score
+                    move = (row, col)
+    place_shape(move[0], move[1], 1)
+
+# minimax algorithm -> recursive algorithm
+def minimax(board, depth, is_maximising):
+    # base cases
+    if is_won(1):
+        return 1
+    elif is_won(2):
+        return -1
+    elif is_board_full():
+        return 0
+
+    # if is maximising player, look to get as high as possible
+    if is_maximising:
+        best_score = float('-inf')
+        for row in range(board_row):
+            for col in range(board_col):
+                if is_tile_empty(row, col):
+                    place_shape(row, col, 1)
+                    score = minimax(board, depth + 1, False)
+                    place_shape(row, col, 0)
+                    best_score = max(score, best_score)
+        return best_score
+
+    # if is not maximising player, look to get as little as possible
+    else:
+        best_score = float('inf')
+        for row in range(board_row):
+            for col in range(board_col):
+                if is_tile_empty(row, col):
+                    place_shape(row, col, 2)
+                    score = minimax(board, depth + 1, True)
+                    place_shape(row, col, 0)
+                    best_score = min(score, best_score)
+        return best_score
+
 draw_separators()
 
 while True:
@@ -156,7 +228,7 @@ while True:
             sys.exit()
 
         # if player clicked the mouse
-        if event.type == pygame.MOUSEBUTTONDOWN and not is_game_over:
+        if event.type == pygame.MOUSEBUTTONDOWN and not is_game_over and player == 2:
             # get mouse position
             mouseX = event.pos[0]
             mouseY = event.pos[1]
@@ -174,12 +246,23 @@ while True:
                 # draw the shapes onto the screen
                 draw_shapes()
 
+
         # check for restart and only do so when game is over
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_r and is_game_over:
                 restart()
                 is_game_over = False
                 player = 2
+
+    # let the ai play next
+    if player == 1:
+        if not is_game_over:
+            ai_move()
+            is_game_over = check_win(player) or is_board_full()
+            player = player % 2 + 1
+
+            # draw the shapes
+            draw_shapes()
 
     # update the screen
     pygame.display.update()
