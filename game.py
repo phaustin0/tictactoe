@@ -9,10 +9,10 @@ height = width
 title = 'Tic Tac Toe'
 
 # background settings
-bg_color = (28, 170, 156)
+bg_color = "#e6ba7a"
 
 # line settings
-line_color = (23, 145, 135)
+line_color = "#dea055"
 line_width = 15
 
 # board settings
