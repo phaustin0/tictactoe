@@ -8,6 +8,6 @@ This application uses `numpy` and `pygame`. If you do not have any of the two in
 ` $ pip install -r requirements.txt`
 
 - If you are on Mac/Linux, <br />
-` $ sudo pip install -r requirements.txt`
+` $ sudo pip3 install -r requirements.txt`
 
 Once you have both packages installed, go to the directory where the application is installed, and run `python game.py`.
